@@ -147,7 +147,6 @@ export default styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 }, // Ajustez l'offset souhaité
     shadowOpacity: 0.2, // Ajustez l'opacité souhaitée
     shadowRadius: 6, // Ajustez le rayon de l'ombre souhaité
-    elevation: 5, // Ajoutez la valeur d'élévation souhaitée
   },
   textFriends: {
     fontSize: 20,

@@ -12,7 +12,6 @@ import { format, isSameMonth } from "date-fns";
 import { fr } from 'date-fns/locale'
 import { BACK_URL } from "@env";
 
-
 // Import styles
 import { globalsStyles, GLOBAL_COLOR } from "../styles/globals";
 import styles from "../styles/HomeStyles";

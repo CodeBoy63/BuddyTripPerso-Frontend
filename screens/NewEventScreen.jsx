@@ -232,7 +232,6 @@ export default function NewEventScreen({ route, navigation }) {
       ticket,
       description,
     };
-
     try {
       const response = await fetch(`${BACK_URL}/events/`, {
         method: event.tokenEvent ? "PUT" : "POST", // Si on a deja un tokenEvent on sait qu'il faut seulement mettre à jour

@@ -23,7 +23,6 @@ export default function ModifProfilScreen({ route, navigation }) {
   const dispatch = useDispatch();
 
   // 2. UseEffect, UseState, UseRef
-
   // États pour gérer les valeurs des champs
   const [username, setUsername] = useState(user.username);
   const [email, setEmail] = useState(user.email);
@@ -85,7 +84,7 @@ export default function ModifProfilScreen({ route, navigation }) {
 
     try {
       // On envoie les nouvelles donnnées au backend
-      const fetchNewDataUser = await fetch(`${BACK_URL}/users/update`, {
+      const fetchNewDataUser = await fetch(`${BACK_URL}/users/updateInfos`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user.token, username, email }),

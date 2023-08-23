@@ -30,7 +30,6 @@ import { login } from '../redux/reducers/user';
 import { addAllTrips } from '../redux/reducers/trips';
 import {  } from '../redux/reducers/events';
 
-
 export default function SigninScreen({ navigation }) {
 
   // 1. Redux storage

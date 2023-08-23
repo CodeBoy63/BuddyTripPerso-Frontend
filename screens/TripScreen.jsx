@@ -13,7 +13,6 @@ import Header from "../components/Header";
 import Event from "../components/Event";
 import BoutonAdd from "../components/BoutonAdd";
 import SvgArrow from "../components/svg/SvgArrow";
-
 //Import modules
 import { formatDate, formatPeriod } from "../modules/dates";
 
@@ -44,7 +43,7 @@ export default function TripScreen({ route, navigation }) {
     (async () => {
       setIsLoad(true);
       try {
-        const tripFetch = await fetch(`${BACK_URL}/trips/${tokenTrip}?token=${user.token}`);
+        const tripFetch = await fetch(`${BACK_URL}/trips/${tokenTrip}?token=${user.token}`,);
         const data = await tripFetch.json();
 
         // On enregistre les infos dans le reducer si tout s'est bien déroulé

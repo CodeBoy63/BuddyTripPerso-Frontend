@@ -13,7 +13,6 @@ import {
   Platform,
 } from "react-native";
 import { BACK_URL } from '@env';
-
 // Import styles
 import { globalsStyles, GLOBAL_COLOR } from '../styles/globals'
 import styles from "../styles/SigninStyles";
@@ -55,7 +54,6 @@ export default function SigninScreen({ navigation }) {
     if (errorFetch) setErrorFetch(null);
   }, [email, password])
 
-
   // Connexion automatique - Actif lors du chargement de la page si le user possède un token de connexion (le tokenSession)
   useEffect(() => {
     (async () => {
@@ -66,7 +64,7 @@ export default function SigninScreen({ navigation }) {
       setModalVisible(true);
       try {
         // On envoie la donnée de connexion au backend
-        const fetchLogin = await fetch(`https://10.0.3.213/users/isconnected?token=${user.token}`, {
+        const fetchLogin = await fetch(`${BACK_URL}/users/isconnected?token=${user.token}`, {
           method: "POST",
           headers: {"Content-Type": "application/json",},
           body: JSON.stringify({token: user.token}),
@@ -114,7 +112,7 @@ export default function SigninScreen({ navigation }) {
     }
     try {
       // On envoie la donnée de connexion au backend
-      const fetchLogin = await fetch(`https://10.0.3.213/users/signin`, {
+      const fetchLogin = await fetch(`${BACK_URL}/users/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

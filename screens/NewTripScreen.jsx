@@ -31,7 +31,6 @@ import { isValidDate } from "../modules/isValidDate";
 import { useSelector, useDispatch } from "react-redux";
 import { addTrip, updateTrip } from "../redux/reducers/trips";
 
-
 export default function NewTripScreen({ route, navigation }) {
 
 // 1. Redux storage
@@ -69,18 +68,18 @@ export default function NewTripScreen({ route, navigation }) {
     if (textError) setTextError(null);
   }, [tripName, startDateText, endDateText, description])
 
-  // On récupère les tokenUser de tous utilisateurs au chargement de la page
-  const [ dataUsers, setDataUsers ] = useState([]);
+  // On récupère les données de tous friends du user au chargement de la page
+  const [ dataFriends, setDataFriends ] = useState([]);
   useEffect(() => {
     (async () => {
       try {
-        const fetchUsers = await fetch(`${BACK_URL}/users/list?token=${user.token}`);
+        const fetchUsers = await fetch(`${BACK_URL}/users/friendsList?token=${user.token}`);
         const data = await fetchUsers.json();
         // On traite les données pour l'envoyer au format necessaire à la liste des buddies
-        const dataMap = data.users.map(obj => {
+        const dataMap = data.friends.map(obj => {
           return {key: obj.tokenUser, value: `${obj.username} - ${obj.email}`, selected: true}
         })
-        setDataUsers(dataMap)
+        setDataFriends(dataMap)
       } catch(error) {
         console.error("Erreur lors de la connexion au serveur :", error);
       }
@@ -212,7 +211,7 @@ export default function NewTripScreen({ route, navigation }) {
       <StatusBar translucent={false} backgroundColor={GLOBAL_COLOR.PRIMARY} barStyle="light-content" />
       <SafeAreaView style={{ flex: 0, backgroundColor: GLOBAL_COLOR.PRIMARY }} />
       <LoadingModal visible={modalLoadingVisible} />
-      <AddBuddyTrip modalVisible={modalBuddyVisible} data={dataUsers} setBuddiesSelected={setBuddiesSelected} buddiesSelected={buddiesSelected} handleModal={handleModal} />
+      <AddBuddyTrip modalVisible={modalBuddyVisible} data={dataFriends} setBuddiesSelected={setBuddiesSelected} buddiesSelected={buddiesSelected} handleModal={handleModal} />
       <SafeAreaView style={styles.screen}>
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={dismissKeyboard}>
           <HeaderNav title={trip.tokenTrip ? "Mettre à jour le Trip" : "Nouveau Trip"} navigation={navigation} />

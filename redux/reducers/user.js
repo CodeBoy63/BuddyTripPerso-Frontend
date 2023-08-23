@@ -15,7 +15,7 @@ export const userSlice = createSlice({
       state.value = initialState.value;
     },
     update: (state, action) => {
-      const { username, email, image } = action.payload;
+      const { username, email, image, friends } = action.payload;
       if (username) {
         state.value.username = username;
       }
@@ -24,6 +24,9 @@ export const userSlice = createSlice({
       }
       if (image) {
         state.value.image = image;
+      }
+      if (friends) {
+        state.value.friends = friends;
       }
     },
   },

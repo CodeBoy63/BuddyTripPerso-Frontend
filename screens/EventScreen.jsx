@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Linking, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Linking, SafeAreaView, StatusBar, ActivityIndicator, Modal } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { format } from "date-fns";
 import { fr } from "date-fns/esm/locale";
@@ -22,7 +22,6 @@ import SvgPeople from "../components/svg/SvgPeople";
 //Import modules
 import { formatDate } from "../modules/dates";
 import { timeToText } from "../modules/formatTime";
-import { findCategory } from "../modules/findCategory";
 
 // Import redux
 import { useDispatch, useSelector } from "react-redux";
@@ -42,20 +41,22 @@ export default function EventScreen({ route, navigation }) {
   // Gère l'affichage de la modale
   const [modalVisible, setModalVisible] = useState(false);
   const [modalLoadingVisible, setModalLoadingVisible] = useState(false);
+  const [textError, setTextError] = useState("");
 
   // Affichage du loader lors du fetch pour s'ajouter/s'enlever de l'event
   const [isLoad, setIsLoad] = useState(false);
   // On recupère les infos de l'évènement dans le storage grâce à son tokenEvent
   const tokenEvent = route.params.tokenEvent;
   const event = events.find((e) => e.tokenEvent === tokenEvent);
-  const isCreator = event.user.tokenUser === user.tokenUser;
+
+  const admin = event.user;
+  const isCreator = admin.tokenUser === user.tokenUser;
   // vérification si le user est participant à l'event ou pas
   const isParticipant = event.participants.find((e) => e.tokenUser === user.tokenUser);
 
   // On destructure les données
   const {
     tokenTrip,
-    user: userEvent,
     participants,
     date,
     name,
@@ -68,7 +69,6 @@ export default function EventScreen({ route, navigation }) {
     ticket,
     infos,
   } = event;
-
   // On défini le nombre de participants
   const sumParticipants = participants.length - 1;
 
@@ -76,7 +76,7 @@ export default function EventScreen({ route, navigation }) {
 
   //fonction pour gérer la Modal
   const handleModalVisible = () => {
-    setModalVisible(false);
+    setModalVisible(!modalVisible);
   };
   // Boutton de la modal
   const ModalButton = ({ onPress, text }) => (
@@ -148,37 +148,41 @@ export default function EventScreen({ route, navigation }) {
     setIsLoad(false);
   };
 
-  // // FETCH Fonction pour supprimer le groupe
-  // const handleSupression = async () => {
-  //   const token = user.token;
+  // FETCH Fonction pour supprimer l'event
+  const handleSupression = async () => {
+    if (modalLoadingVisible) return;
+    // On affiche la modale le temps du fetch
+    setModalLoadingVisible(true);
+    const token = user.token;
 
-  //   try {
-  //     // On envoie la requete au backend
-  //     const fetchDeleteEvent = await fetch(`${BACK_URL}/events/`, {
-  //       method: "DELETE",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ token, tokenEvent }),
-  //     });
-  //     const data = await fetchDeleteEvent.json();
-  //     console.log("Data", data);
-      
-  //     // Si on a result false, on affiche un message à l'utilisateur
-  //     if (!data.result) {
-  //       setTextError(data.error);
-  //       setModalLoadingVisible(false);
-  //       return;
-  //     }
-  //     // dispatch(deleteEvent(tokenEvent));
-  //     //On navigate ensuite vers le TripScreen
-  //     await navigation.navigate("Trip");
-  //     setModalVisible(false);
-  //   } catch (error) {
-  //     setModalLoadingVisible(false);
-  //     // Si on a une erreur au moment du fetch, on renvoie une erreur
-  //     setTextError("Erreur lors de la supression de l'event");
-  //     console.error("Erreur lors de l'envoi au serveur :", error);
-  //   }
-  // };
+    try {
+      // On envoie la requete au backend
+      const fetchDeleteEvent = await fetch(`${BACK_URL}/events/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, tokenEvent }),
+      });
+      const data = await fetchDeleteEvent.json();
+      console.log("Data", data);
+
+      // Si on a result false, on affiche un message à l'utilisateur
+      if (!data.result) {
+        setTextError(data.error);
+        setModalLoadingVisible(false);
+        return;
+      }
+      //On navigate ensuite vers le TripScreen
+      await navigation.navigate("TabNavigator", { screen: "Trip", params: { tokenTrip, date } })
+      dispatch(deleteEvent(tokenEvent));
+      setModalVisible(false);
+      setModalLoadingVisible(false);
+    } catch (error) {
+      setModalLoadingVisible(false);
+      // Si on a une erreur au moment du fetch, on renvoie une erreur
+      setTextError("Erreur lors de la supression de l'event");
+      console.error("Erreur lors de l'envoi au serveur :", error);
+    }
+  };
 
   // 4. Return Component
   return (
@@ -219,7 +223,7 @@ export default function EventScreen({ route, navigation }) {
             <Text numberOfLines={1} ellipsizeMode="middle" style={styles.title}>
               {name}
             </Text>
-            <Text style={styles.titleBy}>Ajouté par {userEvent.username}</Text>
+            <Text style={styles.titleBy}>Ajouté par {admin.username}</Text>
           </View>
           <View style={styles.headerSide}>{iconHeader.current}</View>
         </View>
@@ -255,19 +259,24 @@ export default function EventScreen({ route, navigation }) {
           <View style={styles.containerInfos}>
             <View style={styles.infos}>
               {
-                /* Afficher le bouton d'edition pour le createur */
-                isCreator &&
-                  (<TouchableOpacity
+                /* Afficher le bouton d'édition pour le créateur */
+                isCreator && (
+                  <TouchableOpacity
                     style={styles.edit}
                     activeOpacity={0.8}
                     onPress={() => navigation.navigate("NewEvent", { screen: "NewEvent", tokenEvent })}
                   >
                     <FontAwesome name="edit" size={30} color={GLOBAL_COLOR.SECONDARY} />
-                  </TouchableOpacity>)(
-                    <TouchableOpacity style={styles.trash} activeOpacity={0.8} onPress={handleModalVisible}>
-                      <FontAwesome name="trash" size={30} color={GLOBAL_COLOR.SECONDARY} />
-                    </TouchableOpacity>
-                  )
+                  </TouchableOpacity>
+                )
+              }
+              {
+                /* Afficher le bouton de suppression */
+                isCreator && (
+                  <TouchableOpacity style={styles.trash} activeOpacity={0.8} onPress={handleModalVisible}>
+                    <FontAwesome name="trash" size={30} color={GLOBAL_COLOR.SECONDARY} />
+                  </TouchableOpacity>
+                )
               }
               <Text style={styles.textInfos}>
                 <Text style={styles.textInfosBold}>Date :</Text>

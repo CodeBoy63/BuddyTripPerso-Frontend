@@ -15,7 +15,6 @@ import LoadingModal from "../components/LoadingModal";
 
 //Import modules
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-
 // Import redux
 import { useDispatch, useSelector } from "react-redux";
 import { logout, login } from "../redux/reducers/user";
@@ -185,7 +184,7 @@ export default function ProfilScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           <View style={globalsStyles.lines} />
-          <TouchableOpacity style={styles.containerFriends}>
+          <TouchableOpacity style={styles.containerFriends} onPress= {() => {navigation.navigate("Friends")}}>
             <Text style={styles.textFriends}>Liste d'amis</Text>
             <SvgArrow width={40} height={40} fill={GLOBAL_COLOR.TERTIARY} />
           </TouchableOpacity>

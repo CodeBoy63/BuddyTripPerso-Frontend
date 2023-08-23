@@ -18,6 +18,7 @@ import HomeScreen from './screens/HomeScreen';
 import EventScreen from './screens/EventScreen';
 import TripScreen from './screens/TripScreen';
 import ProfilScreen from './screens/ProfilScreen';
+import FriendsScreen from './screens/FriendsScreen';
 import ModifProfilScreen from './screens/ModifProfilScreen';
 import DocumentsScreen from './screens/DocumentsScreen';
 import ChatScreen from './screens/ChatScreen';
@@ -76,9 +77,11 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="TabNavigator" component={TabNavigator} />
           <Stack.Screen name="NewTrip" component={NewTripScreen}/>
+          <Stack.Screen name="Trip" component={TripScreen} />
           <Stack.Screen name="Event" component={EventScreen} />
           <Stack.Screen name="NewEvent" component={NewEventScreen} />
           <Stack.Screen name="Profil" component={ProfilScreen} />
+          <Stack.Screen name="Friends" component={FriendsScreen} />
           <Stack.Screen name="ModifProfil" component={ModifProfilScreen} />
         </Stack.Navigator>
       </NavigationContainer>
