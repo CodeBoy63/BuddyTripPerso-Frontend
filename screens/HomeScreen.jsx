@@ -1,15 +1,7 @@
 import { useRef, useState, useEffect, Fragment } from "react";
-import {
-  View, 
-  Text,
-  TouchableOpacity,
-  StatusBar,
-  SafeAreaView,
-  ScrollView,
-  Modal,
-} from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, SafeAreaView, ScrollView, Modal } from "react-native";
 import { format, isSameMonth } from "date-fns";
-import { fr } from 'date-fns/locale'
+import { fr } from "date-fns/locale";
 import { BACK_URL } from "@env";
 
 // Import styles
@@ -32,18 +24,17 @@ import { addAllTrips, deleteTrip } from "../redux/reducers/trips";
 import {} from "../redux/reducers/events";
 
 export default function HomeScreen({ navigation }) {
-
-// 1. Redux storage
+  // 1. Redux storage
   const user = useSelector((state) => state.user.value);
   const trips = useSelector((state) => state.trips.value);
   const events = useSelector((state) => state.events.value);
   const dispatch = useDispatch();
 
-// 2. UseEffect, UseState, UseRef
+  // 2. UseEffect, UseState, UseRef
   const [modalVisible, setModalVisible] = useState(false);
   const [infosModalTrip, setInfosModalTrip] = useState({});
 
-// 3. Functions
+  // 3. Functions
 
   // Fonction de récuperation des elements du trips pour la Modal
   const handleModalSuppression = (tokenTrip) => {
@@ -55,7 +46,7 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
-  // Boutton de la modal 
+  // Boutton de la modal
   const ModalButton = ({ onPress, text }) => (
     <TouchableOpacity style={styles.removeButton} onPress={onPress}>
       <Text style={styles.removeButtonText}>{text}</Text>
@@ -63,62 +54,69 @@ export default function HomeScreen({ navigation }) {
   );
 
   // FETCH / Fonction pour supprimer le groupe
-  const handleDeleteTrip = () => {
+  const handleDeleteTrip = async () => {
     const token = user.token;
     const tokenTrip = infosModalTrip.tokenTripModal;
-  
-    fetch(`${BACK_URL}/trips/`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, tokenTrip }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        if(data.result === true){
-          dispatch(deleteTrip(tokenTrip));
-        }
-        setModalVisible(false);
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la requête DELETE :", error);
+
+    try {
+      // On envoie la donnée de connexion au backend
+      const fetchSupp = await fetch(`${BACK_URL}/trips/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, tokenTrip }),
       });
+      const data = await fetchSupp.json();
+
+      if (!data.result) {
+        setModalVisible(false);
+        return;
+      }
+      dispatch(deleteTrip(tokenTrip));
+      setModalVisible(false);
+    } catch (error) {
+      // Si on a une erreur au moment du fetch, on renvoie une erreur
+      setModalVisible(false);
+      console.error("Erreur lors de l'envoi au serveur :", error);
+    }
   };
 
   // FETCH / Fonction pour quitter le groupe
-  const quitTrip = () => {
+  const quitTrip = async () => {
     const token = user.token;
     const tokenTrip = infosModalTrip.tokenTripModal;
-  
-    fetch(`${BACK_URL}/trips/quit`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, tokenTrip }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        if(data.result === true){
-          dispatch(deleteTrip(tokenTrip));
-        }
-        setModalVisible(false);
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la requête DELETE :", error);
+
+    try {
+      // On envoie la donnée de connexion au backend
+      const fetchQuit = await fetch(`${BACK_URL}/trips/quit`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, tokenTrip }),
       });
+      const data = await fetchQuit.json();
+      
+      if (!data.result) {
+        setModalVisible(false);
+        return;
+      }
+      dispatch(deleteTrip(tokenTrip));
+      setModalVisible(false);
+    } catch (error) {
+      // Si on a une erreur au moment du fetch, on renvoie une erreur
+      setModalVisible(false);
+      console.error("Erreur lors de l'envoi au serveur :", error);
+    }
   };
 
-  
   // 4. Return Component
-  
+
   // Fonction d'affichage de la liste des Trips
-  let monthPrec = '';
+  let monthPrec = "";
   const tripList = trips.map((trip) => {
     const buddiesCount = trip.participants.length;
     let buddyList = `${buddiesCount} buddies`;
-    if (buddiesCount === 1) buddyList = '1 buddy';
-    else if (buddiesCount === 0) buddyList = '';
-    
+    if (buddiesCount === 1) buddyList = "1 buddy";
+    else if (buddiesCount === 0) buddyList = "";
+
     // On vérifie que le mois du trip précédant est identique
     const isScreenMonth = isSameMonth(new Date(trip.dateStart), new Date(monthPrec));
     monthPrec = trip.dateStart;
@@ -126,30 +124,30 @@ export default function HomeScreen({ navigation }) {
     const titleMonth = !isScreenMonth ? (
       <View key={trip.dateStart} style={styles.monthContainer}>
         <View style={styles.monthLine}></View>
-        <Text style={styles.monthText}>{format(new Date(trip.dateStart), 'MMMM yyyy', { locale: fr })}</Text>
-        <View style={[styles.monthLine, {flex: 2}]}></View>
+        <Text style={styles.monthText}>{format(new Date(trip.dateStart), "MMMM yyyy", { locale: fr })}</Text>
+        <View style={[styles.monthLine, { flex: 2 }]}></View>
       </View>
     ) : null;
 
     return (
-    <Fragment key={trip.tokenTrip}>
-      {titleMonth}
-      <TouchableOpacity
-        style={styles.tripContainer}
-        onLongPress={() => handleModalSuppression(trip.tokenTrip)}
-        onPress={() => navigation.navigate("TabNavigator", { screen: "Trip", params: {tokenTrip: trip.tokenTrip }})}
-      >
-        <View style={styles.tripContainerInner}>
-          <View style={styles.tripSubContainer}>
-            <Text style={styles.tripTitle}>{trip.name}</Text>
-            <Text style={styles.tripParticipants}>{buddyList}</Text>
+      <Fragment key={trip.tokenTrip}>
+        {titleMonth}
+        <TouchableOpacity
+          style={styles.tripContainer}
+          onLongPress={() => handleModalSuppression(trip.tokenTrip)}
+          onPress={() => navigation.navigate("TabNavigator", { screen: "Trip", params: { tokenTrip: trip.tokenTrip } })}
+        >
+          <View style={styles.tripContainerInner}>
+            <View style={styles.tripSubContainer}>
+              <Text style={styles.tripTitle}>{trip.name}</Text>
+              <Text style={styles.tripParticipants}>{buddyList}</Text>
+            </View>
+            <Text style={styles.tripDate}>{formatPeriod([new Date(trip.dateStart), new Date(trip.dateEnd)])}</Text>
           </View>
-          <Text style={styles.tripDate}>{formatPeriod([new Date(trip.dateStart), new Date(trip.dateEnd)])}</Text>
-        </View>
-        <View styles={styles.chevron}></View>
-      </TouchableOpacity>
-    </Fragment>
-    )
+          <View styles={styles.chevron}></View>
+        </TouchableOpacity>
+      </Fragment>
+    );
   });
 
   return (
@@ -171,7 +169,7 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </Modal>
         <View style={styles.header}>
-          <Logo style={{flexDirection: 'row'}} />
+          <Logo style={{ flexDirection: "row" }} />
           <TouchableOpacity onPress={() => navigation.navigate("Profil")} activeOpacity={0.5}>
             <BuddyBubble key={user.tokenUser} size={50} i={0} buddy={user} />
           </TouchableOpacity>
@@ -185,7 +183,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         </ScrollView>
         <View style={styles.add}>
-          <BoutonAdd onPress={() => navigation.navigate("NewTrip")} buttonStyle={styles.boutonAdd}/>
+          <BoutonAdd onPress={() => navigation.navigate("NewTrip")} buttonStyle={styles.boutonAdd} />
         </View>
       </SafeAreaView>
     </>

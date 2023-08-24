@@ -13,8 +13,10 @@ import {
   Platform,
 } from "react-native";
 import { BACK_URL } from '@env';
+
+// Import assets
+import tripImage from "../assets/trip.jpg";
 // Import styles
-import { globalsStyles, GLOBAL_COLOR } from '../styles/globals'
 import styles from "../styles/SigninStyles";
 
 //Import components
@@ -73,6 +75,7 @@ export default function SigninScreen({ navigation }) {
         // Si on a result False, on affiche un message à l'utilisateur
         if (!data.result) {
           dispatch(logout());
+          console.log(user);
           setModalVisible(false);
           return;
         }
@@ -148,23 +151,22 @@ export default function SigninScreen({ navigation }) {
   }
 
   // Fonction provisoire pour compléter les champs automatiquement
-  const autoComplete = event => {
-    const username = event._dispatchInstances.memoizedProps.children;
-    let defaultMail = '';
-    if(username === 'John') defaultMail = 'john@gmail.com';
-    else if(username === 'Barbie') defaultMail = 'barbie@gmail.com';
-    else if(username === 'Ken') defaultMail = 'ken@gmail.com';
-    else if(username === 'Ben') defaultMail = 'ben@gmail.com';
-    setEmail(defaultMail);
-    setPassword('azerty');
-  }
+  // const autoComplete = event => {
+  //   const username = event._dispatchInstances.memoizedProps.children;
+  //   let defaultMail = '';
+  //   if(username === 'John') defaultMail = 'john@gmail.com';
+  //   else if(username === 'Barbie') defaultMail = 'barbie@gmail.com';
+  //   else if(username === 'Ken') defaultMail = 'ken@gmail.com';
+  //   else if(username === 'Ben') defaultMail = 'ben@gmail.com';
+  //   setEmail(defaultMail);
+  //   setPassword('azerty');
+  // }
 
 
   // 4. Return Component
-  const uri = 'https://st.depositphotos.com/2294011/3570/i/450/depositphotos_35708235-stock-photo-travel-and-trip.jpg';
 
   return (
-    <ImageBackground source={{uri}} style={styles.backgroundImage} resizeMode="cover">
+    <ImageBackground source={tripImage} style={styles.backgroundImage} resizeMode="cover">
       <StatusBar translucent={true} backgroundColor="transparent" barStyle="light-content" />
       <Modal
         animationType="fade"
@@ -183,12 +185,12 @@ export default function SigninScreen({ navigation }) {
           <Logo size={100} style={styles.logo} />
           <View style={styles.body}>
             <Text style={styles.error}>{errorFetch}</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            {/* <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
               <Text onPress={autoComplete}>John</Text>
               <Text onPress={autoComplete}>Barbie</Text>
               <Text onPress={autoComplete}>Ken</Text>
               <Text onPress={autoComplete}>Ben</Text>
-            </View>
+            </View> */}
             <InputComponent
               key="email"
               name="email"

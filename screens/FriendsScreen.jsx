@@ -17,7 +17,7 @@ import styles from "../styles/FriendsStyles";
 import { globalsStyles, GLOBAL_COLOR } from "../styles/globals";
 
 //Import components
-import AddBuddyTrip from "../components/AddBuddyTrip";
+import AddBuddy from "../components/AddBuddy";
 import LoadingModal from "../components/LoadingModal";
 import BuddyBubble from "../components/BuddyBubble";
 
@@ -142,7 +142,7 @@ export default function FriendsScreen({ route, navigation }) {
       <StatusBar translucent={false} backgroundColor={GLOBAL_COLOR.PRIMARY} barStyle="light-content" />
       <SafeAreaView style={{ flex: 0, backgroundColor: GLOBAL_COLOR.PRIMARY }} />
       <LoadingModal visible={modalLoadingVisible} />
-      <AddBuddyTrip
+      <AddBuddy
         modalVisible={modalAddVisible}
         data={dataUsers}
         setBuddiesSelected={setUserSelected}
@@ -151,7 +151,7 @@ export default function FriendsScreen({ route, navigation }) {
         handleModal={() => setModalAddVisible(false)}
         text={`Voulez-vous ajouter:`}
       />
-      <AddBuddyTrip
+      <AddBuddy
         modalVisible={modalSuppVisible}
         data={dataFriends}
         setBuddiesSelected={setFriendSelected}
@@ -190,3 +190,4 @@ export default function FriendsScreen({ route, navigation }) {
     </>
   );
 }
+

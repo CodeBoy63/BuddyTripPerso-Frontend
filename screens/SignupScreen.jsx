@@ -18,6 +18,9 @@ import { BACK_URL } from '@env';
 import { globalsStyles, GLOBAL_COLOR } from '../styles/globals'
 import styles from "../styles/SigninStyles";
 
+// Import assets
+import tripImage from "../assets/trip.jpg";
+
 //Import components
 import Logo from '../components/Logo';
 import InputComponent from '../components/Input';
@@ -44,8 +47,6 @@ export default function SigninScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   // Gère l'affichage du message d'erreur
   const [ errorFetch, setErrorFetch ] = useState(null);
-  // Gère la désactivation des inputs
-  const [ disabled, setDisabled ] = useState(false);
 
   // Gère les infos dans les input
   const [ username, setUsername ] = useState("");
@@ -82,10 +83,10 @@ export default function SigninScreen({ navigation }) {
 
   // Fonction de connection
   const handleConnect = async () => {
-    // On annule l'action si le formulaire est disabled
-    if (disabled) return;
-    // On change la valeur du disabled le temps du fetch
-    setDisabled(true);
+    // On annule l'action si la modale est affichée
+    if (modalVisible) return;
+    // On affiche la modale le temps du fetch
+    setModalVisible(true);
     // On vérifie si les inputs ne sont pas vides
     if(!(
       username !== "" &&
@@ -93,13 +94,13 @@ export default function SigninScreen({ navigation }) {
       password !== "" &&
       confirmPassword !== ""
     )) {
-      setDisabled(false);
+      setModalVisible(false);
       setErrorFetch('Empty fields');
       return;
     }
     // On vérifie que les passwords matchent
     if(password !== confirmPassword) {
-      setDisabled(false);
+      setModalVisible(false);
       setErrorFetch('Wrong password confirmation');
       return;
     }
@@ -115,7 +116,7 @@ export default function SigninScreen({ navigation }) {
       const data = await fetchLogin.json();
       // Si on a result False, on affiche un message à l'utilisateur
       if (!data.result) {
-        setDisabled(false);
+        setModalVisible(false);
         setErrorFetch(data.error);
         return;
       }
@@ -126,11 +127,11 @@ export default function SigninScreen({ navigation }) {
       dispatch(login(data.user));
       dispatch(addAllTrips(data.trips));
       await navigation.navigate("Home");
-      setDisabled(false);
+      setModalVisible(false);
     }
     // Si on a une erreur au moment du fetch, on renvoie une erreur
     catch (error) {
-      setDisabled(false);
+      setModalVisible(false);
       setErrorFetch("Erreur de connexion au serveur");
       console.error("Erreur lors de l'envoi au serveur :", error);
     }
@@ -144,18 +145,15 @@ export default function SigninScreen({ navigation }) {
     else if (name === 'confirmPassword') setConfirmPassword(value);
   }
 
-
-
   // 4. Return Component
-  const uri = 'https://st.depositphotos.com/2294011/3570/i/450/depositphotos_35708235-stock-photo-travel-and-trip.jpg';
 
   return (
-    <ImageBackground source={{uri}} style={styles.backgroundImage} resizeMode="cover">
+    <ImageBackground source={tripImage} style={styles.backgroundImage} resizeMode="cover">
       <StatusBar translucent={true} backgroundColor="transparent" barStyle="light-content" />
       <Modal
         animationType="fade"
         transparent={true}
-        visible={disabled}
+        visible={modalVisible}
         statusBarTranslucent={true}
       >
         <View style={styles.modal}><ActivityIndicator size="large" color="#750000" /></View>
@@ -218,3 +216,4 @@ export default function SigninScreen({ navigation }) {
     </ImageBackground>
   );
 }
+

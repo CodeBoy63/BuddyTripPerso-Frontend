@@ -7,7 +7,7 @@ export default function BuddyBubble(props) {
     <View style={[
       styles.bubble,
       {
-        zIndex: 100 - props.i,
+        zIndex: 100 - props.i, //propriété qui sert à l'empilement des bubbles
         left: -0.3 * props.size * props.i,
         width: props.size,
         height: props.size,

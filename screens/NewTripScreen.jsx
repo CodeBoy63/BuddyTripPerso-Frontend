@@ -19,7 +19,7 @@ import { globalsStyles, GLOBAL_COLOR } from "../styles/globals";
 
 //Import components
 import HeaderNav from "../components/HeaderNewTrip";
-import AddBuddyTrip from "../components/AddBuddyTrip";
+import SelectBuddiesTrip from "../components/SelectBuddiesTrip";
 import LoadingModal from "../components/LoadingModal";
 import InputComponent from "../components/Input";
 
@@ -32,8 +32,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addTrip, updateTrip } from "../redux/reducers/trips";
 
 export default function NewTripScreen({ route, navigation }) {
-
-// 1. Redux storage
+  // 1. Redux storage
   const user = useSelector((state) => state.user.value);
   const trips = useSelector((state) => state.trips.value);
   const events = useSelector((state) => state.events.value);
@@ -49,7 +48,7 @@ export default function NewTripScreen({ route, navigation }) {
     //return console.log(trip)
   }
 
-// 2. UseEffect, UseState, UseRef
+  // 2. UseEffect, UseState, UseRef
 
   // Gère l'affichage de la modale
   const [modalBuddyVisible, setModalBuddyVisible] = useState(false);
@@ -58,7 +57,9 @@ export default function NewTripScreen({ route, navigation }) {
 
   // États pour gérer les valeurs des champs
   const [tripName, setTripName] = useState(trip.name ?? "");
-  const [startDateText, setStartDateText] = useState(trip.dateStart ? format(new Date(trip.dateStart), "dd'/'MM'/'yyyy") : "");
+  const [startDateText, setStartDateText] = useState(
+    trip.dateStart ? format(new Date(trip.dateStart), "dd'/'MM'/'yyyy") : ""
+  );
   const [endDateText, setEndDateText] = useState(trip.dateEnd ? format(new Date(trip.dateEnd), "dd'/'MM'/'yyyy") : "");
   const [description, setDescription] = useState(trip.description ?? "");
   const [textError, setTextError] = useState("");
@@ -66,43 +67,42 @@ export default function NewTripScreen({ route, navigation }) {
   // Permet de supprimer le message d'erreur dès que l'utilisateur tape un nouveau texte
   useEffect(() => {
     if (textError) setTextError(null);
-  }, [tripName, startDateText, endDateText, description])
+  }, [tripName, startDateText, endDateText, description]);
 
   // On récupère les données de tous friends du user au chargement de la page
-  const [ dataFriends, setDataFriends ] = useState([]);
+  const [dataFriends, setDataFriends] = useState([]);
   useEffect(() => {
     (async () => {
       try {
         const fetchUsers = await fetch(`${BACK_URL}/users/friendsList?token=${user.token}`);
         const data = await fetchUsers.json();
         // On traite les données pour l'envoyer au format necessaire à la liste des buddies
-        const dataMap = data.friends.map(obj => {
-          return {key: obj.tokenUser, value: `${obj.username} - ${obj.email}`, selected: true}
-        })
-        setDataFriends(dataMap)
-      } catch(error) {
+        const dataMap = data.friends.map((obj) => {
+          return { key: obj.tokenUser, value: `${obj.username} - ${obj.email}`, selected: true };
+        });
+        setDataFriends(dataMap);
+      } catch (error) {
         console.error("Erreur lors de la connexion au serveur :", error);
       }
-    })().catch(err => {
+    })().catch((err) => {
       console.error("Unhandled promise rejection:", err);
     });
-  }, [])
+  }, []);
 
-
-// 3. Functions
+  // 3. Functions
 
   // Gestion des states des inputs
   const handleInputChange = (name, value) => {
-    if (name === 'name') setTripName(value);
-    else if (name === 'dateStart') handleDateChange(value, 'start');
-    else if (name === 'dateEnd') handleDateChange(value, 'end');
-    else if (name === 'description') setDescription(value);
-  }
+    if (name === "name") setTripName(value);
+    else if (name === "dateStart") handleDateChange(value, "start");
+    else if (name === "dateEnd") handleDateChange(value, "end");
+    else if (name === "description") setDescription(value);
+  };
 
   // Fonction qui gère l'affichage ou non de la modale des buddies
   const handleModal = () => {
     setModalBuddyVisible(!modalBuddyVisible);
-  }
+  };
 
   // Fonction pour masquer le clavier lorsque l'utilisateur appuie en dehors du champ de saisie
   const dismissKeyboard = () => {
@@ -114,8 +114,8 @@ export default function NewTripScreen({ route, navigation }) {
     // Formater le texte de la date pour qu'il ait le format "JJ/MM/AAAA"
     const formattedDate = formatDate(text);
     // Mettre à jour l'état avec la date formatée
-    name === 'start' && setStartDateText(formattedDate);
-    name === 'end' && setEndDateText(formattedDate);
+    name === "start" && setStartDateText(formattedDate);
+    name === "end" && setEndDateText(formattedDate);
   };
 
   // Fonction pour créer un nouveau groupe de voyage
@@ -177,7 +177,7 @@ export default function NewTripScreen({ route, navigation }) {
 
       // Envoyer la demande de création du voyage au serveur via une requête POST
       const response = await fetch(`${BACK_URL}/trips/`, {
-        method: trip.tokenTrip ? "PUT": "POST", // Si on a deja un tokenEvent on sait qu'il faut seulement mettre à jour
+        method: trip.tokenTrip ? "PUT" : "POST", // Si on a deja un tokenTrip on sait qu'il faut seulement mettre à jour
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: user.token, trip: tripData }),
       });
@@ -192,8 +192,7 @@ export default function NewTripScreen({ route, navigation }) {
           // On sauvegarde le retour dans le reducer, en faisant un update si c'est un mise à jour, ou un ajout si c'est un nouveau
           dispatch(updateTrip(responseData.trip));
           await navigation.goBack();
-        }
-        else {
+        } else {
           dispatch(addTrip(responseData.trip));
           await navigation.navigate("Home");
         }
@@ -204,14 +203,20 @@ export default function NewTripScreen({ route, navigation }) {
       setModalLoadingVisible(false);
       setTextError("Erreur de connexion au serveur");
     }
-  }
+  };
 
   return (
     <>
       <StatusBar translucent={false} backgroundColor={GLOBAL_COLOR.PRIMARY} barStyle="light-content" />
       <SafeAreaView style={{ flex: 0, backgroundColor: GLOBAL_COLOR.PRIMARY }} />
       <LoadingModal visible={modalLoadingVisible} />
-      <AddBuddyTrip modalVisible={modalBuddyVisible} data={dataFriends} setBuddiesSelected={setBuddiesSelected} buddiesSelected={buddiesSelected} handleModal={handleModal} />
+      <SelectBuddiesTrip
+        modalVisible={modalBuddyVisible}
+        data={dataFriends}
+        setBuddiesSelected={setBuddiesSelected}
+        buddiesSelected={buddiesSelected}
+        handleModal={handleModal}
+      />
       <SafeAreaView style={styles.screen}>
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={dismissKeyboard}>
           <HeaderNav title={trip.tokenTrip ? "Mettre à jour le Trip" : "Nouveau Trip"} navigation={navigation} />
@@ -250,7 +255,9 @@ export default function NewTripScreen({ route, navigation }) {
               value={description}
             />
             <TouchableOpacity style={styles.btnBuddy} onPress={handleModal}>
-              <Text style={styles.buddyText}>Sélectionner des buddies - <Text style={{fontWeight: "bold"}}>{buddiesSelected.length}/50</Text></Text>
+              <Text style={styles.buddyText}>
+                Sélectionner des buddies - <Text style={{ fontWeight: "bold" }}>{buddiesSelected.length}/50</Text>
+              </Text>
             </TouchableOpacity>
             <Text style={styles.textError}>{textError}</Text>
             <TouchableOpacity style={styles.btnAdd} onPress={handleAddTrip}>

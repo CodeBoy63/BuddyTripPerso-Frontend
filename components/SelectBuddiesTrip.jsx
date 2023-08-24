@@ -1,17 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Text, Modal, TouchableOpacity, StatusBar, SafeAreaView } from "react-native";
 import { GLOBAL_COLOR } from "../styles/globals";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-// import { MultipleSelectList } from "react-native-dropdown-select-list";
-import { SelectList } from "react-native-dropdown-select-list";
+import { MultipleSelectList } from "react-native-dropdown-select-list"; // Utilisation de MultipleSelectList
 
-export default function AddBuddyTrip(props) {
-  // Trouver l'objet correspondant à la clé buddiesSelected dans dataUsers
-  const selectedUser = props.data.find((item) => item.key === props.buddiesSelected);
+export default function SelectBuddiesTrip(props) {
 
-  // Extraire le username de l'objet trouvé
-  const selectedUsername = selectedUser ? selectedUser.value.split(" - ")[0] : "";
-  
   return (
     <>
       <Modal animationType="fade" transparent={true} visible={props.modalVisible} statusBarTranslucent={false}>
@@ -19,14 +13,21 @@ export default function AddBuddyTrip(props) {
         <SafeAreaView style={{ flex: 0, backgroundColor: GLOBAL_COLOR.PRIMARY }} />
         <View style={styles.modal}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.arrow} onPress= {props.handleModal} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.arrow}
+              onPress={() => {
+                props.setBuddiesSelected([]);
+                props.handleModal();
+              }}
+              activeOpacity={0.8}
+            >
               <FontAwesome name="arrow-left" size={30} color="white" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Liste de tes buddies :</Text>
             <View style={styles.fakeView}></View>
           </View>
           <View style={styles.body}>
-            <SelectList
+            <MultipleSelectList // Utilisation de MultipleSelectList au lieu de SelectList
               setSelected={(value) => props.setBuddiesSelected(value)}
               data={props.data}
               save="key"
@@ -41,11 +42,7 @@ export default function AddBuddyTrip(props) {
               dropdownItemStyles={styles.dropdownItemStyles}
               badgeStyles={styles.badgeStyles}
             />
-            <View style={styles.viewText}>
-              <Text style={styles.text}>{props.text}</Text>
-              <Text style={styles.buddySelec}>{selectedUsername}</Text>
-            </View>
-            <TouchableOpacity style={styles.btnSave} onPress={props.handleModif}>
+            <TouchableOpacity style={styles.btnSave} onPress={props.handleModal}>
               <Text style={styles.textSave}>Valider</Text>
             </TouchableOpacity>
           </View>
@@ -61,15 +58,15 @@ const styles = StyleSheet.create({
     backgroundColor: GLOBAL_COLOR.TERTIARY,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     height: 60,
     backgroundColor: GLOBAL_COLOR.PRIMARY,
   },
   arrow: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     width: 60,
     height: 60,
   },
@@ -118,22 +115,6 @@ const styles = StyleSheet.create({
   },
   badgeStyles: {
     backgroundColor: GLOBAL_COLOR.PRIMARY,
-  },
-  viewText: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: 'white', 
-    borderWidth: 2,
-    borderColor: GLOBAL_COLOR.PRIMARY,
-    borderRadius: 5,
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: GLOBAL_COLOR.PRIMARY
-  },
-  buddySelec: {
-    fontSize: 18,
   },
   btnSave: {
     justifyContent: "center",
