@@ -25,6 +25,7 @@ import BuddyBubble from "../components/BuddyBubble";
 
 // Import redux
 import { useSelector, useDispatch } from "react-redux";
+import { update } from "../redux/reducers/user";
 
 export default function FriendsScreen({ route, navigation }) {
   // 1. Redux storage
@@ -38,8 +39,9 @@ export default function FriendsScreen({ route, navigation }) {
   const [modalAddVisible, setModalAddVisible] = useState(false);
   const [modalSuppVisible, setModalSuppVisible] = useState(false);
   const [modalLoadingVisible, setModalLoadingVisible] = useState(false);
-  const [userSelected, setUserSelected] = useState([]);
-  const [friendSelected, setFriendSelected] = useState([]);
+  const [userSelected, setUserSelected] = useState("");
+  const [friendSelected, setFriendSelected] = useState("");
+  const [tokenFriend, setTokenFriend] = useState("");
 
   // États pour gérer les données des fetchs
   const [dataUsers, setDataUsers] = useState([]);
@@ -94,6 +96,11 @@ export default function FriendsScreen({ route, navigation }) {
 
   // 3. Functions
 
+  // Fonction qui gère l'affichage ou non de la modale des buddies
+  const handleModal = () => {
+    setModalAddVisible(false);
+    setModalSuppVisible(false);
+  };
   // Fonction pour masquer le clavier lorsque l'utilisateur appuie en dehors du champ de saisie
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -111,6 +118,17 @@ export default function FriendsScreen({ route, navigation }) {
     } else {
       setModifFriend(false);
     }
+
+    console.log("user choisi: ", userSelected);
+    console.log("friend choisi: ", friendSelected);
+
+    if (userSelected) {
+      setTokenFriend(userSelected);
+    } else {
+      setTokenFriend(friendSelected);
+    }
+    setUserSelected("");
+    setFriendSelected("");
     try {
       // On envoie la donnée de connexion au backend
       const fetchFriendList = await fetch(`${BACK_URL}/users/updateFriends`, {
@@ -121,13 +139,17 @@ export default function FriendsScreen({ route, navigation }) {
         body: JSON.stringify({ token: user.token, tokenFriend: tokenFriend, modifFriend: modifFriend }),
       });
       const data = await fetchFriendList.json();
+      console.log("data", data);
       // Si on a result false, on affiche un message à l'utilisateur
       if (!data.result) {
         setModalLoadingVisible(false);
         setTextError(data.error);
         return;
       }
-      setModalVisible(false);
+      dispatch(update({ friends: data.friends }));
+      setTextError("reussite");
+      setModalAddVisible(false);
+      setModalSuppVisible(false);
       setModalLoadingVisible(false);
     } catch (error) {
       setModalLoadingVisible(false);
@@ -148,7 +170,7 @@ export default function FriendsScreen({ route, navigation }) {
         setBuddiesSelected={setUserSelected}
         buddiesSelected={userSelected}
         handleModif={() => handleModifFriend(true)}
-        handleModal={() => setModalAddVisible(false)}
+        handleModal={handleModal}
         text={`Voulez-vous ajouter:`}
       />
       <AddBuddy
@@ -157,8 +179,9 @@ export default function FriendsScreen({ route, navigation }) {
         setBuddiesSelected={setFriendSelected}
         buddiesSelected={friendSelected}
         handleModif={() => handleModifFriend(false)}
-        handleModal={() => setModalSuppVisible(false)}
+        handleModal={handleModal}
         text={`Voulez-vous supprimer:`}
+        textError={textError}
       />
       <SafeAreaView style={styles.screen}>
         <View style={styles.header}>
@@ -190,4 +213,3 @@ export default function FriendsScreen({ route, navigation }) {
     </>
   );
 }
-

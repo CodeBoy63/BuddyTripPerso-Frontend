@@ -45,6 +45,7 @@ export default function AddBuddy(props) {
               <Text style={styles.text}>{props.text}</Text>
               <Text style={styles.buddySelec}>{selectedUsername}</Text>
             </View>
+            <Text>{props.textError}</Text>
             <TouchableOpacity style={styles.btnSave} onPress={props.handleModif}>
               <Text style={styles.textSave}>Valider</Text>
             </TouchableOpacity>
