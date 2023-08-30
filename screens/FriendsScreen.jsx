@@ -41,7 +41,6 @@ export default function FriendsScreen({ route, navigation }) {
   const [modalLoadingVisible, setModalLoadingVisible] = useState(false);
   const [userSelected, setUserSelected] = useState("");
   const [friendSelected, setFriendSelected] = useState("");
-  const [tokenFriend, setTokenFriend] = useState("");
 
   // États pour gérer les données des fetchs
   const [dataUsers, setDataUsers] = useState([]);
@@ -118,6 +117,8 @@ export default function FriendsScreen({ route, navigation }) {
   };
   // Fonction pour vérifier si le user peut etre renvoyer sur la page de modifications
   const handleAddFriend = async () => {
+    console.log("token",user.token);
+    console.log("friendSelected", friendSelected);
     try {
       // On envoie la donnée de connexion au backend
       const fetchFriendList = await fetch(`${BACK_URL}/users/updateFriends`, {
