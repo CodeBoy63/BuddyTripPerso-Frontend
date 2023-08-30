@@ -73,7 +73,7 @@ export default function FriendsScreen({ route, navigation }) {
     })().catch((err) => {
       console.error("Unhandled promise rejection:", err);
     });
-  }, []);
+  }, [textError]);
 
   // On récupère les données de tous utilisateurs au chargement de la page
   useEffect(() => {
@@ -92,11 +92,11 @@ export default function FriendsScreen({ route, navigation }) {
     })().catch((err) => {
       console.error("Unhandled promise rejection:", err);
     });
-  }, []);
+  }, [textError]);
 
   // 3. Functions
 
-  // Fonction qui gère l'affichage ou non de la modale des buddies
+  // Fonction qui gère l'affichage de la modale des buddies
   const handleModal = () => {
     setModalAddVisible(false);
     setModalSuppVisible(false);
@@ -106,29 +106,18 @@ export default function FriendsScreen({ route, navigation }) {
     Keyboard.dismiss();
   };
 
-  // Fonction pour vérifier si le user peut etre renvoyer sur la page de modifications
-  const handleModifFriend = async (boolean) => {
-    // On annule l'action si la modale est affichée
-    if (modalLoadingVisible) return;
-    // On affiche la modale le temps du fetch
-    setModalLoadingVisible(true);
-
+  const handleModifFriend = (boolean) => {
+    console.log("handleModifFriend called with:", boolean);
     if (boolean) {
-      setModifFriend(true);
+      console.log(userSelected);
+      handleAddFriend();
     } else {
-      setModifFriend(false);
+      console.log(friendSelected);
+      handleSuppFriend();
     }
-
-    console.log("user choisi: ", userSelected);
-    console.log("friend choisi: ", friendSelected);
-
-    if (userSelected) {
-      setTokenFriend(userSelected);
-    } else {
-      setTokenFriend(friendSelected);
-    }
-    setUserSelected("");
-    setFriendSelected("");
+  };
+  // Fonction pour vérifier si le user peut etre renvoyer sur la page de modifications
+  const handleAddFriend = async () => {
     try {
       // On envoie la donnée de connexion au backend
       const fetchFriendList = await fetch(`${BACK_URL}/users/updateFriends`, {
@@ -136,20 +125,21 @@ export default function FriendsScreen({ route, navigation }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token: user.token, tokenFriend: tokenFriend, modifFriend: modifFriend }),
+        body: JSON.stringify({ token: user.token, tokenFriend: userSelected, modifFriend: true }),
       });
       const data = await fetchFriendList.json();
       console.log("data", data);
       // Si on a result false, on affiche un message à l'utilisateur
       if (!data.result) {
         setModalLoadingVisible(false);
+        setModalAddVisible(false);
         setTextError(data.error);
         return;
       }
       dispatch(update({ friends: data.friends }));
-      setTextError("reussite");
+      setTextError("réussite");
+      setUserSelected("");
       setModalAddVisible(false);
-      setModalSuppVisible(false);
       setModalLoadingVisible(false);
     } catch (error) {
       setModalLoadingVisible(false);
@@ -159,6 +149,38 @@ export default function FriendsScreen({ route, navigation }) {
     }
   };
 
+  // Fonction pour vérifier si le user peut etre renvoyer sur la page de modifications
+  const handleSuppFriend = async () => {
+    try {
+      // On envoie la donnée de connexion au backend
+      const fetchFriendList = await fetch(`${BACK_URL}/users/updateFriends`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: user.token, tokenFriend: friendSelected, modifFriend: false }),
+      });
+      const data = await fetchFriendList.json();
+      console.log("data", data);
+      // Si on a result false, on affiche un message à l'utilisateur
+      if (!data.result) {
+        setModalLoadingVisible(false);
+        setModalSuppVisible(false);
+        setTextError(data.error);
+        return;
+      }
+      dispatch(update({ friends: data.friends }));
+      setTextError("réussite");
+      setFriendSelected("");
+      setModalSuppVisible(false);
+      setModalLoadingVisible(false);
+    } catch (error) {
+      setModalLoadingVisible(false);
+      // Si on a une erreur au moment du fetch, on renvoie une erreur
+      setTextError("Erreur dans l'ajout ou la supression d'un ami");
+      console.error("Erreur lors de l'envoi au serveur :", error);
+    }
+  };
   return (
     <>
       <StatusBar translucent={false} backgroundColor={GLOBAL_COLOR.PRIMARY} barStyle="light-content" />
@@ -172,6 +194,7 @@ export default function FriendsScreen({ route, navigation }) {
         handleModif={() => handleModifFriend(true)}
         handleModal={handleModal}
         text={`Voulez-vous ajouter:`}
+        textError={textError}
       />
       <AddBuddy
         modalVisible={modalSuppVisible}
